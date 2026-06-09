@@ -477,10 +477,6 @@
       position: relative;
       overflow: hidden;
       background: #e8edf8;
-      display: flex;
-      align-items: flex-end;
-      padding: 22px;
-      isolation: isolate;
     }
     .demos-grid {
       display: grid;
@@ -503,7 +499,6 @@
       top: 0; left: 0;
       transform-origin: top left;
       pointer-events: none;
-      display: none;
     }
     .demo-iframe-wrap iframe {
       width: 1440px;
@@ -512,49 +507,12 @@
       display: block;
     }
     .demo-overlay {
-      display: none;
+      position: absolute; inset: 0;
+      background: rgba(15,23,42,0.18);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.25s;
     }
-    .demo-preview::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background:
-        radial-gradient(ellipse 70% 60% at 80% 20%, rgba(255,255,255,0.18), transparent 60%),
-        linear-gradient(135deg, #111827, #1f2937);
-    }
-    .demo-preview::after {
-      color: rgba(255,255,255,0.92);
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(28px, 5vw, 42px);
-      line-height: 1;
-      letter-spacing: -0.02em;
-      max-width: 320px;
-    }
-    .demo-card:nth-child(1) .demo-preview::before {
-      background:
-        radial-gradient(ellipse 70% 55% at 82% 18%, rgba(224,40,30,0.42), transparent 62%),
-        linear-gradient(135deg, #111111, #2b1817 58%, #3b1110);
-    }
-    .demo-card:nth-child(1) .demo-preview::after { content: 'Tienda online'; }
-    .demo-card:nth-child(2) .demo-preview::before {
-      background:
-        radial-gradient(ellipse 70% 55% at 78% 18%, rgba(108,99,255,0.5), transparent 62%),
-        linear-gradient(135deg, #0f1117, #181b2f 58%, #25204c);
-    }
-    .demo-card:nth-child(2) .demo-preview::after { content: 'Dashboard de gestión'; }
-    .demo-card:nth-child(3) .demo-preview::before {
-      background:
-        radial-gradient(ellipse 70% 55% at 78% 18%, rgba(20,184,166,0.44), transparent 62%),
-        linear-gradient(135deg, #0f172a, #123532 58%, #0f4a44);
-    }
-    .demo-card:nth-child(3) .demo-preview::after { content: 'Presupuestos PDF'; }
-    .demo-card:nth-child(4) .demo-preview::before {
-      background:
-        radial-gradient(ellipse 70% 55% at 78% 18%, rgba(59,130,246,0.5), transparent 62%),
-        linear-gradient(135deg, #0a1628, #102a52 58%, #1d4ed8);
-    }
-    .demo-card:nth-child(4) .demo-preview::after { content: 'Sistema de turnos'; }
+    .demo-card:hover .demo-overlay { opacity: 1; }
     .demo-open-btn {
       background: var(--accent); color: #fff;
       border: none; padding: 12px 28px;
