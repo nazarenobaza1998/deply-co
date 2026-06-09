@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DentalBook — Turnos Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f8fafc;
+      --white: #ffffff;
+      --dark: #0f172a;
+      --dark2: #1e293b;
+      --mid: #475569;
+      --soft: #94a3b8;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent2: #3b82f6;
+      --accent-bg: #eff6ff;
+      --accent-border: rgba(37,99,235,0.2);
+      --green: #16a34a;
+      --green-bg: #f0fdf4;
+      --green-border: rgba(22,163,74,0.2);
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--dark); font-size: 14px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .header-main {
+      padding: 0 40px; height: 66px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .clinic-brand { display: flex; align-items: center; gap: 14px; }
+    .clinic-mark {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .clinic-mark svg { width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .clinic-name { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+    .clinic-sub { font-size: 11px; color: var(--soft); margin-top: 1px; }
+    .header-info { display: flex; align-items: center; gap: 24px; }
+    .hinfo-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mid); }
+    .hinfo-item svg { width: 13px; height: 13px; stroke: var(--soft); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+    /* Info bar */
+    .info-bar {
+      background: var(--accent); padding: 9px 40px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    .info-bar-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: rgba(255,255,255,0.85); }
+    .info-bar-item svg { width: 13px; height: 13px; stroke: rgba(255,255,255,0.7); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .info-bar-sep { color: rgba(255,255,255,0.2); }
+
+    /* ── PROGRESS ── */
+    .progress-wrap { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 40px; }
+    .progress-bar { display: flex; align-items: stretch; max-width: 600px; }
+    .step-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 0; flex: 1; position: relative;
+    }
+    .step-item:not(:last-child)::after {
+      content: ''; position: absolute; right: 0; top: 50%;
+      transform: translateY(-50%); width: 1px; height: 20px;
+      background: var(--border);
+    }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; flex-shrink: 0;
+      border: 2px solid var(--border); color: var(--soft); background: var(--white);
+      transition: all 0.2s;
+    }
+    .step-num.done { background: var(--green); border-color: var(--green); color: #fff; }
+    .step-num.done svg { width: 12px; height: 12px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .step-num.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .step-text { font-size: 12px; font-weight: 600; color: var(--soft); padding-right: 20px; }
+    .step-text.active { color: var(--accent); }
+    .step-text.done { color: var(--green); }
+
+    /* ── MAIN ── */
+    .main { max-width: 1080px; margin: 0 auto; padding: 32px 24px; display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .card + .card { margin-top: 16px; }
+    .card-head { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 14px; font-weight: 700; }
+    .card-sub { font-size: 11px; color: var(--soft); margin-top: 2px; }
+    .card-body { padding: 22px; }
+
+    /* ── SPECIALTY ── */
+    .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .spec-btn {
+      padding: 14px; border: 2px solid var(--border); border-radius: 10px;
+      cursor: pointer; background: var(--white); text-align: left;
+      transition: all 0.15s; display: flex; align-items: flex-start; gap: 12px;
+    }
+    .spec-btn:hover { border-color: var(--accent2); background: var(--accent-bg); }
+    .spec-btn.active { border-color: var(--accent); background: var(--accent-bg); }
+    .spec-icon-wrap {
+      width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; margin-top: 1px;
+    }
+    .spec-icon-wrap svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .spec-name { font-size: 13px; font-weight: 700; display: block; margin-bottom: 2px; }
+    .spec-detail { font-size: 11px; color: var(--soft); }
+
+    /* ── CALENDAR ── */
+    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .cal-month { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+    .cal-nav-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1.5px solid var(--border); background: none; cursor: pointer;
+      color: var(--mid); transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cal-nav-btn:hover { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+    .cal-nav-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .cal-day-name {
+      text-align: center; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--soft); padding: 4px 0 10px;
+    }
+    .cal-day {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      border-radius: 9px; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.12s; position: relative;
+    }
+    .cal-day:hover:not(.empty):not(.past):not(.no-slots) { background: var(--accent-bg); color: var(--accent); }
+    .cal-day.empty, .cal-day.past { color: #e2e8f0; cursor: default; pointer-events: none; }
+    .cal-day.today { font-weight: 800; color: var(--accent); }
+    .cal-day.today::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; background:var(--accent); border-radius:50%; }
+    .cal-day.has-slots::before { content:''; position:absolute; top:3px; right:3px; width:5px; height:5px; background:var(--green); border-radius:50%; }
+    .cal-day.selected { background:var(--accent) !important; color:#fff !important; font-weight:700; }
+    .cal-day.selected::before { background:#fff; }
+    .cal-day.selected.today::after { background:rgba(255,255,255,0.6); }
+    .cal-day.no-slots { color:var(--soft); cursor:not-allowed; }
+
+    .cal-legend { display:flex; gap:16px; margin-top:16px; padding-top:16px; border-top:1px solid var(--border); }
+    .leg { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--mid); }
+    .leg-dot { width:7px; height:7px; border-radius:50%; }
+
+    /* ── SLOTS ── */
+    .slots-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .slots-date { font-size:13px; font-weight:700; }
+    .slots-count { font-size:11px; font-weight:700; color:var(--green); background:var(--green-bg); padding:3px 10px; border-radius:20px; border:1px solid var(--green-border); }
+    .slots-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+    .slot-btn {
+      padding:9px 4px; border:1.5px solid var(--border); border-radius:8px;
+      background:var(--white); cursor:pointer; text-align:center;
+      font-size:13px; font-weight:600; color:var(--mid); font-family:inherit;
+      transition:all 0.15s;
+    }
+    .slot-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
+    .slot-btn.selected { border-color:var(--accent); background:var(--accent); color:#fff; }
+    .slot-btn.taken { background:#f8fafc; color:var(--border); cursor:not-allowed; border-color:var(--border); text-decoration:line-through; font-size:11px; }
+
+    /* ── SIDEBAR ── */
+    .sidebar-stack { display:flex; flex-direction:column; gap:16px; }
+
+    /* Doctor card */
+    .doctor-wrap { display:flex; align-items:center; gap:14px; }
+    .doctor-av {
+      width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 900; color: #fff;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .doctor-name { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+    .doctor-spec { font-size: 12px; color: var(--soft); margin-top: 2px; margin-bottom: 8px; }
+    .doctor-rating { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+    .stars { color: #f59e0b; letter-spacing: 1px; }
+    .rating-num { font-weight: 700; color: var(--dark); }
+    .rating-count { color: var(--soft); }
+    .doctor-badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .dbadge { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; background: var(--bg); color: var(--mid); border: 1px solid var(--border); }
+
+    /* Form card states */
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+    .empty-state { text-align: center; padding: 36px 20px; }
+    .empty-icon {
+      width: 56px; height: 56px; border-radius: 16px; background: var(--accent-bg);
+      margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;
+    }
+    .empty-icon svg { width: 26px; height: 26px; stroke: var(--accent); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .empty-state h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .empty-state p { font-size: 12px; color: var(--soft); line-height: 1.6; }
+
+    /* Summary box */
+    .summary-box {
+      background: var(--accent-bg); border: 1px solid var(--accent-border);
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 16px;
+    }
+    .sum-row { display: flex; align-items: flex-start; gap: 10px; padding: 5px 0; }
+    .sum-row:not(:last-child) { border-bottom: 1px solid var(--accent-border); }
+    .sum-icon { width: 28px; height: 28px; border-radius: 7px; background: rgba(37,99,235,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .sum-icon svg { width: 13px; height: 13px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sum-label { font-size: 10px; color: var(--soft); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 2px; }
+    .sum-val { font-size: 13px; font-weight: 700; color: var(--dark); }
+
+    /* Patient form */
+    .pf-form { display: flex; flex-direction: column; gap: 12px; }
+    .pf-group { display: flex; flex-direction: column; gap: 5px; }
+    .pf-group label { font-size: 11px; font-weight: 600; color: var(--mid); }
+    .pf-group input, .pf-group select, .pf-group textarea {
+      padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13px; font-family: inherit; color: var(--dark); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s; background: var(--white);
+    }
+    .pf-group input:focus, .pf-group select:focus, .pf-group textarea:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+    .confirm-btn {
+      width: 100%; background: var(--accent); color: #fff; border: none;
+      padding: 14px; border-radius: 10px; font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: background 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
+    }
+    .confirm-btn:hover { background: #1d4ed8; }
+    .confirm-btn:disabled { background: var(--border); color: var(--soft); cursor: not-allowed; }
+    .confirm-btn svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Success state */
+    .success-wrap { padding: 32px 22px; text-align: center; }
+    .success-circle {
+      width: 72px; height: 72px; border-radius: 50%; background: var(--green-bg);
+      border: 3px solid var(--green); margin: 0 auto 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .success-circle svg { width: 30px; height: 30px; stroke: var(--green); fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .success-wrap h2 { font-size: 20px; font-weight: 800; color: var(--green); margin-bottom: 8px; }
+    .success-wrap p { font-size: 13px; color: var(--mid); line-height: 1.7; margin-bottom: 6px; }
+    .confirm-num {
+      display: inline-block; margin: 16px 0;
+      background: var(--accent-bg); border: 1px solid var(--accent-border);
+      color: var(--accent); padding: 9px 20px; border-radius: 8px;
+      font-size: 16px; font-weight: 800; letter-spacing: 0.08em;
+    }
+    .new-btn {
+      width: 100%; background: none; border: 1.5px solid var(--accent); color: var(--accent);
+      padding: 12px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 700;
+      font-family: inherit; transition: all 0.15s; margin-top: 8px;
+    }
+    .new-btn:hover { background: var(--accent-bg); }
+
+    /* DEPLY BADGE */
+    .deply-badge {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #0a0a0a; color: #c8a96e;
+      padding: 9px 18px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      font-family: 'Courier New', monospace; z-index: 500;
+      border: 1px solid rgba(200,169,110,0.3); text-decoration: none; border-radius: 4px;
+    }
+    .deply-badge span { color: #fff; }
+
+    @media (max-width: 860px) {
+      .main { grid-template-columns: 1fr; }
+      .progress-wrap { display: none; }
+    }
+    @media (max-width: 640px) {
+      .header-main { padding: 0 16px; }
+      .info-bar { padding: 9px 16px; gap: 12px; }
+      .main { padding: 16px 12px; }
+      .spec-grid { grid-template-columns: 1fr 1fr; }
+      .slots-grid { grid-template-columns: repeat(4,1fr); }
+      .header-info { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-main">
+    <div class="clinic-brand">
+      <div class="clinic-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8c0 5.4 7.05 11.5 7.35 11.76a1 1 0 0 0 1.3 0C12.95 21.5 20 15.4 20 10a8 8 0 0 0-8-8z"/><path d="M12 7v4M10 9h4"/></svg>
+      </div>
+      <div>
+        <div class="clinic-name">DentalBook</div>
+        <div class="clinic-sub">Clínica Dental Dr. Rodríguez · Córdoba</div>
+      </div>
+    </div>
+    <div class="header-info">
+      <div class="hinfo-item">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Av. Vélez Sársfield 480
+      </div>
+      <div class="hinfo-item">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        (0351) 480-0000
+      </div>
+      <div class="hinfo-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Lun–Vie 8:00–19:00
+      </div>
+    </div>
+  </div>
+  <div class="info-bar">
+    <div class="info-bar-item">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      Sin llamadas · confirmación inmediata
+    </div>
+    <span class="info-bar-sep">·</span>
+    <div class="info-bar-item">
+      <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.21 15.9a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 5h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 12.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Confirmación por WhatsApp
+    </div>
+    <span class="info-bar-sep">·</span>
+    <div class="info-bar-item">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Datos protegidos
+    </div>
+  </div>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-bar">
+    <div class="step-item">
+      <div class="step-num active" id="snum1">1</div>
+      <span class="step-text active" id="stxt1">Especialidad</span>
+    </div>
+    <div class="step-item">
+      <div class="step-num" id="snum2">2</div>
+      <span class="step-text" id="stxt2">Fecha y hora</span>
+    </div>
+    <div class="step-item">
+      <div class="step-num" id="snum3">3</div>
+      <span class="step-text" id="stxt3">Tus datos</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- LEFT -->
+  <div>
+    <!-- SPECIALTY -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">¿Qué tipo de consulta necesitás?</div>
+          <div class="card-sub">Seleccioná la especialidad para continuar</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="spec-grid">
+          <button class="spec-btn active" onclick="selectSpec(this,'Consulta General')">
+            <div class="spec-icon-wrap" style="background:#eff6ff;color:#2563eb">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+            <div><span class="spec-name">Consulta General</span><span class="spec-detail">Revisión y diagnóstico</span></div>
+          </button>
+          <button class="spec-btn" onclick="selectSpec(this,'Limpieza Dental')">
+            <div class="spec-icon-wrap" style="background:#f0fdf4;color:#16a34a">
+              <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <div><span class="spec-name">Limpieza Dental</span><span class="spec-detail">Profilaxis completa</span></div>
+          </button>
+          <button class="spec-btn" onclick="selectSpec(this,'Ortodoncia')">
+            <div class="spec-icon-wrap" style="background:#faf5ff;color:#9333ea">
+              <svg viewBox="0 0 24 24"><path d="M2 12h20M12 2v20"/><circle cx="12" cy="12" r="10"/></svg>
+            </div>
+            <div><span class="spec-name">Ortodoncia</span><span class="spec-detail">Brackets y alineadores</span></div>
+          </button>
+          <button class="spec-btn" onclick="selectSpec(this,'Urgencia Dental')">
+            <div class="spec-icon-wrap" style="background:#fff7ed;color:#ea580c">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div><span class="spec-name">Urgencia</span><span class="spec-detail">Dolor o emergencia</span></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Elegí la fecha</div>
+          <div class="card-sub">Los puntos verdes indican turnos disponibles</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="cal-month" id="calMonth"></div>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Con disponibilidad</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--border)"></div>Sin turnos / fin de semana</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--accent)"></div>Seleccionado</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLOTS -->
+    <div class="card" id="slotsCard" style="display:none">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Horarios disponibles</div>
+          <div class="card-sub" id="slotsDateLabel"></div>
+        </div>
+        <div class="slots-count" id="slotsCount"></div>
+      </div>
+      <div class="card-body">
+        <div class="slots-grid" id="slotsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar-stack">
+    <!-- Doctor -->
+    <div class="card">
+      <div class="card-body">
+        <div class="doctor-wrap">
+          <div class="doctor-av">CR</div>
+          <div>
+            <div class="doctor-name">Dr. Carlos Rodríguez</div>
+            <div class="doctor-spec">Odontólogo General · MN 32.441</div>
+            <div class="doctor-rating">
+              <span class="stars">★★★★★</span>
+              <span class="rating-num">5.0</span>
+              <span class="rating-count">(148 reseñas)</span>
+            </div>
+          </div>
+        </div>
+        <div class="doctor-badges">
+          <span class="dbadge">10+ años</span>
+          <span class="dbadge">Atención inmediata</span>
+          <span class="dbadge">Todas las obras sociales</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking -->
+    <div class="card" id="bookCard">
+      <!-- Empty -->
+      <div class="form-step active" id="fEmpty">
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <h4>Seleccioná fecha y horario</h4>
+          <p>Una vez que elijas el turno podrás completar tus datos y confirmar.</p>
+        </div>
+      </div>
+      <!-- Form -->
+      <div class="form-step" id="fData">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Completá tus datos</div>
+            <div class="card-sub">Confirmación por WhatsApp al instante</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="summary-box" id="summaryBox"></div>
+          <div class="pf-form">
+            <div class="pf-group"><label>Nombre completo</label><input type="text" id="pNombre" placeholder="Ana Martínez" oninput="checkForm()"></div>
+            <div class="pf-group"><label>WhatsApp</label><input type="text" id="pWa" placeholder="+54 9 351 000-0000" oninput="checkForm()"></div>
+            <div class="pf-group"><label>Email</label><input type="email" id="pEmail" placeholder="ana@email.com"></div>
+            <div class="pf-group">
+              <label>¿Primera vez?</label>
+              <select id="pPrimera">
+                <option value="si">Sí, soy paciente nuevo</option>
+                <option value="no">No, ya soy paciente</option>
+              </select>
+            </div>
+            <div class="pf-group"><label>Motivo / síntoma (opcional)</label><textarea rows="2" id="pMotivo" placeholder="Dolor en muela, revisión de rutina..."></textarea></div>
+            <button class="confirm-btn" id="confirmBtn" onclick="confirmBooking()" disabled>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Confirmar turno
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Success -->
+      <div class="form-step" id="fSuccess">
+        <div class="success-wrap">
+          <div class="success-circle">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2>¡Turno confirmado!</h2>
+          <div class="confirm-num" id="confirmNum"></div>
+          <p>Te enviamos la confirmación por WhatsApp.</p>
+          <p><strong>Dr. Rodríguez</strong> te espera.</p>
+          <div class="summary-box" id="summarySuccess" style="text-align:left;margin-top:16px"></div>
+          <button class="new-btn" onclick="resetAll()">Sacar otro turno</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="../index.html" class="deply-badge"><span>Deply</span> Co. — Demo</a>
+
+<script>
+  const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const DAYS_SHORT = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+  let today = new Date();
+  let viewYear = today.getFullYear();
+  let viewMonth = today.getMonth();
+  let selectedDate = null;
+  let selectedSlot = null;
+  let selectedSpec = 'Consulta General';
+
+  function getAvailableDays(year, month) {
+    const days = new Set();
+    const d = new Date(year, month, 1);
+    while (d.getMonth() === month) {
+      const dow = d.getDay();
+      if (dow !== 0 && dow !== 6 && d >= today) {
+        if (Math.random() > 0.25) days.add(d.getDate());
+      }
+      d.setDate(d.getDate() + 1);
+    }
+    return days;
+  }
+
+  let availableDays = getAvailableDays(viewYear, viewMonth);
+
+  function renderCalendar() {
+    const first = new Date(viewYear, viewMonth, 1).getDay();
+    const total = new Date(viewYear, viewMonth + 1, 0).getDate();
+    document.getElementById('calMonth').textContent = MONTHS[viewMonth] + ' ' + viewYear;
+
+    let html = DAYS_SHORT.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+    for (let i = 0; i < first; i++) html += `<div class="cal-day empty"></div>`;
+
+    const td = today.getDate(), tm = today.getMonth(), ty = today.getFullYear();
+
+    for (let d = 1; d <= total; d++) {
+      const date = new Date(viewYear, viewMonth, d);
+      const isPast = date < new Date(ty, tm, td);
+      const isToday = d === td && viewMonth === tm && viewYear === ty;
+      const isSel = selectedDate && selectedDate.getDate() === d && selectedDate.getMonth() === viewMonth && selectedDate.getFullYear() === viewYear;
+      const hasSlots = availableDays.has(d);
+      const dow = date.getDay();
+      const isWeekend = dow === 0 || dow === 6;
+
+      let cls = 'cal-day';
+      if (isPast || isWeekend) cls += ' past';
+      else if (!hasSlots) cls += ' no-slots';
+      else cls += ' has-slots';
+      if (isToday) cls += ' today';
+      if (isSel) cls += ' selected';
+
+      const clickable = !isPast && !isWeekend && hasSlots;
+      html += `<div class="${cls}"${clickable ? ` onclick="selectDate(${d})"` : ''}>${d}</div>`;
+    }
+    document.getElementById('calGrid').innerHTML = html;
+  }
+
+  function changeMonth(delta) {
+    viewMonth += delta;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    availableDays = getAvailableDays(viewYear, viewMonth);
+    selectedDate = null; selectedSlot = null;
+    document.getElementById('slotsCard').style.display = 'none';
+    showStep('fEmpty');
+    updateProgress(1);
+    renderCalendar();
+  }
+
+  const ALL_SLOTS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
+
+  function selectDate(d) {
+    selectedDate = new Date(viewYear, viewMonth, d);
+    selectedSlot = null;
+    renderCalendar();
+    renderSlots();
+    showStep('fEmpty');
+    updateProgress(2);
+  }
+
+  function renderSlots() {
+    const card = document.getElementById('slotsCard');
+    card.style.display = '';
+
+    const dateStr = selectedDate.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long' });
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    document.getElementById('slotsDateLabel').textContent = cap(dateStr);
+
+    const seed = selectedDate.getDate() * 7 + selectedDate.getMonth();
+    const taken = new Set(ALL_SLOTS.filter((_, i) => (i + seed) % 4 === 0));
+    const free = ALL_SLOTS.filter(s => !taken.has(s));
+    document.getElementById('slotsCount').textContent = free.length + ' horarios libres';
+
+    document.getElementById('slotsGrid').innerHTML = ALL_SLOTS.map(s => {
+      const isTaken = taken.has(s);
+      const isSel = s === selectedSlot;
+      return `<button class="slot-btn${isTaken ? ' taken' : ''}${isSel ? ' selected' : ''}" ${isTaken ? 'disabled' : `onclick="selectSlot('${s}')"`}>${s}</button>`;
+    }).join('');
+  }
+
+  function selectSlot(slot) {
+    selectedSlot = slot;
+    renderSlots();
+    showStep('fData');
+    updateSummary();
+    updateProgress(3);
+    checkForm();
+  }
+
+  function selectSpec(btn, spec) {
+    document.querySelectorAll('.spec-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedSpec = spec;
+    if (selectedSlot) updateSummary();
+  }
+
+  function updateSummary() {
+    const dateStr = selectedDate ? selectedDate.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long' }) : '';
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    const html = `
+      <div class="sum-row">
+        <div class="sum-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+        <div><div class="sum-label">Especialidad</div><div class="sum-val">${selectedSpec}</div></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div><div class="sum-label">Fecha</div><div class="sum-val">${cap(dateStr)}</div></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div><div class="sum-label">Horario</div><div class="sum-val">${selectedSlot} hs · Dr. Rodríguez</div></div>
+      </div>
+    `;
+    document.getElementById('summaryBox').innerHTML = html;
+  }
+
+  function showStep(id) {
+    document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function updateProgress(step) {
+    for (let i = 1; i <= 3; i++) {
+      const num = document.getElementById('snum' + i);
+      const txt = document.getElementById('stxt' + i);
+      num.className = 'step-num';
+      txt.className = 'step-text';
+      if (i < step) {
+        num.className = 'step-num done';
+        num.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+        txt.className = 'step-text done';
+      } else if (i === step) {
+        num.className = 'step-num active';
+        num.textContent = i;
+        txt.className = 'step-text active';
+      } else {
+        num.textContent = i;
+      }
+    }
+  }
+
+  function checkForm() {
+    const ok = document.getElementById('pNombre').value.trim() && document.getElementById('pWa').value.trim();
+    document.getElementById('confirmBtn').disabled = !ok;
+  }
+
+  function confirmBooking() {
+    const num = 'DB-' + Math.floor(Math.random()*90000+10000);
+    document.getElementById('confirmNum').textContent = num;
+    const dateStr = selectedDate.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long' });
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    document.getElementById('summarySuccess').innerHTML = `
+      <div class="sum-row">
+        <div class="sum-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div><div class="sum-label">Paciente</div><div class="sum-val">${document.getElementById('pNombre').value}</div></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+        <div><div class="sum-label">Especialidad</div><div class="sum-val">${selectedSpec}</div></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div><div class="sum-label">Turno</div><div class="sum-val">${cap(dateStr)} · ${selectedSlot} hs</div></div>
+      </div>
+    `;
+    showStep('fSuccess');
+    updateProgress(4);
+  }
+
+  function resetAll() {
+    selectedDate = null; selectedSlot = null;
+    document.getElementById('slotsCard').style.display = 'none';
+    ['pNombre','pWa','pEmail','pMotivo'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    showStep('fEmpty');
+    updateProgress(1);
+    renderCalendar();
+  }
+
+  renderCalendar();
+  updateProgress(1);
+</script>
+</body>
+</html>
